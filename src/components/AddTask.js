@@ -1,46 +1,40 @@
-import { useState, useRef } from "react";
+function AddTask({taskList, setTaskList, task, setTask}) {
 
-import "./AddTask.css";
+    const handleSubmit = (e) => {
+        e.preventDefault();
 
-function AddTask({tasks, setTasks}) {
-    const inputRef = useRef("");
-    const [progress, setProgress] = useState(false);
-
-    const handleReset = () => {
-        setProgress(false);
-        inputRef.current.value = "";
-        inputRef.current.focus();
-    }
-
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        if( inputRef.current.value.trim() === "" ) {
-            alert("Task name is required!");
-            inputRef.current.focus();
-            return;
-        }
-        else {
-            const task = {
-                id: Math.floor(Math.random() * 1000),
-                name: inputRef.current.value,
-                completed: Boolean(progress)
+        if(task.id) {
+            const date = new Date();
+            const updateTask = taskList.map((todo) => (
+                todo.id === task.id ? {
+                    id: task.id,
+                    name: task.name,
+                    time: `${date.toLocaleTimeString()} ${date.toLocaleDateString()}`
+                } : todo
+            ))
+            setTaskList(updateTask);
+            setTask({})
+            e.target.task.focus();
+        } else {
+            const date = new Date();
+            const newTask = {
+                id: date.getTime(),
+                name: e.target.task.value,
+                time: `${date.toLocaleTimeString()} ${date.toLocaleDateString()}`
             }
-            setTasks([...tasks, task]);
-            handleReset();
+            
+            setTaskList([...taskList, newTask]);
+            setTask({})
+            e.target.task.focus();
         }
     }
 
     return ( 
-        <section className="addtask">
+        <section className="addTask">
             <form onSubmit={handleSubmit}>
-                <input ref={inputRef} type="text" name="task" id="task" spellCheck="false" 
-                    placeholder="Input your task name..." autoComplete="off"/>
-                <select onChange={(event) => setProgress(event.target.value)} value={progress}>
-                    <option value="false">Pending</option>
-                    <option value="true">Completed</option>
-                </select>
-                <button type="submit">Add Task</button>
-                <span className="reset" onClick={handleReset}>Reset</span>
+                <input type="text" name="task" autoComplete="off" placeholder="add task" 
+                    maxLength="25" spellCheck="false" value={task.name || ""} onChange={e => setTask({...task, name: e.target.value})}/>
+                <button>{task.id ? "Update" : "Add"}</button>
             </form>
         </section>
      );
